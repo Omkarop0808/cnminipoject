@@ -1,0 +1,28 @@
+# WinReg-HIDS System Settings Configuration
+
+server:
+  host: "127.0.0.1"
+  port: 8000
+  reload: false
+  log_level: "info"
+
+storage:
+  database_path: "C:\\dev\\CNminiproject\\winreg_hids.db"
+  journal_mode: "WAL"
+  busy_timeout_ms: 5000
+  retention_days: 30
+
+telemetry:
+  enable_win32_watcher: true
+  enable_sysmon_watcher: true
+  sysmon_channel: "Microsoft-Windows-Sysmon/Operational"
+  deduplication_window_seconds: 5.0
+  max_queue_size: 20000
+
+baseline:
+  auto_snapshot_on_startup: true
+  snapshot_hash_algorithm: "sha256"
+
+simulation:
+  auto_cleanup_delay_seconds: 2.0
+  allowed_in_production: false

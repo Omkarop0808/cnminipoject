@@ -1,0 +1,142 @@
+# WinReg-HIDS Deterministic Detection Rules Definition
+# Evaluated by src/engine/rule_engine.py
+
+version: "1.0.0"
+rules:
+  - rule_id: "WR-PERSIST-001"
+    name: "Startup Run Key Executable in User-Writable Directory"
+    severity: "CRITICAL"
+    mitre_attack: "T1547.001"
+    description: "Detects creation or modification of a Run/RunOnce key pointing to an executable in user-writable paths."
+    rationale: "Adversaries routinely drop persistence payloads into %TEMP%, %APPDATA%, or Public folders where non-administrative processes have write access."
+    conditions:
+      all_of:
+        - field: "key_path"
+          operator: "contains_ignore_case"
+          value: "CurrentVersion\\Run"
+        - field: "operation"
+          operator: "in"
+          value: ["CREATE", "MODIFY"]
+        - any_of:
+            - field: "new_data"
+              operator: "regex"
+              value: "(?i)(%APPDATA%|%TEMP%|Users\\\\Public|AppData\\\\Local\\\\Temp).+\\.(exe|dll|bat|vbs|ps1|js)"
+            - field: "new_data"
+              operator: "regex"
+              value: "(?i)(powershell|cmd|mshta|cscript|wscript|certutil|rundll32)\\.exe"
+    suppression:
+      - field: "process.image_name"
+        operator: "equals_ignore_case"
+        value: "trusted_installer.exe"
+
+  - rule_id: "WR-PERSIST-002"
+    name: "Image File Execution Options Debugger Hijack"
+    severity: "CRITICAL"
+    mitre_attack: "T1546.012"
+    description: "Detects registration of a Debugger value under Image File Execution Options (IFEO)."
+    rationale: "Adversaries hijack IFEO debugger entries to intercept execution of common binaries (e.g. sethc.exe, utilman.exe) for persistence or privilege escalation."
+    conditions:
+      all_of:
+        - field: "key_path"
+          operator: "contains_ignore_case"
+          value: "Image File Execution Options"
+        - field: "value_name"
+          operator: "equals_ignore_case"
+          value: "Debugger"
+        - field: "operation"
+          operator: "in"
+          value: ["CREATE", "MODIFY"]
+
+  - rule_id: "WR-DEFENSE-001"
+    name: "Windows Defender Real-Time Protection Disabled"
+    severity: "HIGH"
+    mitre_attack: "T1562.001"
+    description: "Detects policy modifications disabling Windows Defender or Antivirus protection."
+    rationale: "Adversaries disable endpoint antivirus and real-time scanning engines to prevent detection of subsequent malicious tools and payloads."
+    conditions:
+      all_of:
+        - field: "key_path"
+          operator: "contains_ignore_case"
+          value: "Policies\\Microsoft\\Windows Defender"
+        - any_of:
+            - field: "value_name"
+              operator: "equals_ignore_case"
+              value: "DisableAntiSpyware"
+            - field: "value_name"
+              operator: "equals_ignore_case"
+              value: "DisableRealtimeMonitoring"
+            - field: "value_name"
+              operator: "equals_ignore_case"
+              value: "DisableBehaviorMonitoring"
+        - field: "new_data"
+          operator: "in"
+          value: ["1", "0x00000001", "0x1"]
+
+  - rule_id: "WR-PERSIST-003"
+    name: "Winlogon Shell or Userinit Tampering"
+    severity: "CRITICAL"
+    mitre_attack: "T1547.004"
+    description: "Detects modifications to Winlogon Shell or Userinit registry values."
+    rationale: "Winlogon handles user logon sequences. Altering Shell or Userinit allows adversaries to execute code before or alongside the standard Windows desktop shell."
+    conditions:
+      all_of:
+        - field: "key_path"
+          operator: "contains_ignore_case"
+          value: "Windows NT\\CurrentVersion\\Winlogon"
+        - field: "operation"
+          operator: "in"
+          value: ["CREATE", "MODIFY"]
+        - any_of:
+            - all_of:
+                - field: "value_name"
+                  operator: "equals_ignore_case"
+                  value: "Shell"
+                - field: "new_data"
+                  operator: "not_equals_ignore_case"
+                  value: "explorer.exe"
+            - all_of:
+                - field: "value_name"
+                  operator: "equals_ignore_case"
+                  value: "Userinit"
+                - field: "new_data"
+                  operator: "regex"
+                  value: "(?i),.+"
+
+  - rule_id: "WR-PERSIST-004"
+    name: "Suspicious Windows Service Binary Registration"
+    severity: "HIGH"
+    mitre_attack: "T1543.003"
+    description: "Detects creation of a Windows Service pointing to untrusted or user-writable locations."
+    rationale: "Service persistence provides SYSTEM-level privilege upon reboot. Adversaries routinely register services pointing to dropped payloads."
+    conditions:
+      all_of:
+        - field: "key_path"
+          operator: "contains_ignore_case"
+          value: "System\\CurrentControlSet\\Services"
+        - field: "value_name"
+          operator: "equals_ignore_case"
+          value: "ImagePath"
+        - field: "operation"
+          operator: "in"
+          value: ["CREATE", "MODIFY"]
+        - field: "new_data"
+          operator: "regex"
+          value: "(?i)(%APPDATA%|%TEMP%|Users\\\\Public|AppData\\\\Local\\\\Temp)"
+
+  - rule_id: "WR-PERSIST-005"
+    name: "Startup Key Utilizing Script or LOLBin Interpreter"
+    severity: "HIGH"
+    mitre_attack: "T1218"
+    description: "Detects startup values invoking script hosts or Living-off-the-Land Binaries."
+    rationale: "Adversaries evade binary file inspections by executing persistence via built-in Windows interpreters such as mshta, wscript, cscript, or powershell."
+    conditions:
+      all_of:
+        - field: "key_path"
+          operator: "contains_ignore_case"
+          value: "CurrentVersion\\Run"
+        - field: "operation"
+          operator: "in"
+          value: ["CREATE", "MODIFY"]
+        - field: "new_data"
+          operator: "regex"
+          value: "(?i)(mshta|wscript|cscript|regsvr32|rundll32|certutil)\\.exe"

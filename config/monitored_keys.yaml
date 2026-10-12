@@ -1,0 +1,51 @@
+# WinReg-HIDS Monitored Registry Locations Configuration
+# Defines hives and key paths monitored by the Win32 watcher and baseline engine.
+
+monitored_keys:
+  - hive: "HKCU"
+    path: "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    recursive: false
+    description: "Per-user startup persistence entries"
+    tags: ["persistence", "startup", "mitre_t1547_001"]
+
+  - hive: "HKCU"
+    path: "Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+    recursive: false
+    description: "Per-user one-time execution persistence entries"
+    tags: ["persistence", "startup", "mitre_t1547_001"]
+
+  - hive: "HKLM"
+    path: "Software\\Microsoft\\Windows\\CurrentVersion\\Run"
+    recursive: false
+    description: "Machine-wide startup persistence entries"
+    tags: ["persistence", "startup", "mitre_t1547_001"]
+
+  - hive: "HKLM"
+    path: "Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+    recursive: false
+    description: "Machine-wide one-time startup persistence entries"
+    tags: ["persistence", "startup", "mitre_t1547_001"]
+
+  - hive: "HKLM"
+    path: "Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"
+    recursive: false
+    description: "Winlogon shell and userinit persistence"
+    tags: ["persistence", "winlogon", "mitre_t1547_004"]
+
+  - hive: "HKLM"
+    path: "Software\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options"
+    recursive: true
+    description: "Debugger hooks and silent process exit hijacks"
+    tags: ["persistence", "privilege_escalation", "ifeo", "mitre_t1546_012"]
+
+  - hive: "HKLM"
+    path: "System\\CurrentControlSet\\Services"
+    recursive: false
+    description: "Windows service registrations and modifications"
+    tags: ["persistence", "services", "mitre_t1543_003"]
+
+  - hive: "HKLM"
+    path: "Software\\Policies\\Microsoft\\Windows Defender"
+    recursive: true
+    description: "Windows Defender security policy tampering"
+    tags: ["defense_evasion", "antivirus_tamper", "mitre_t1562_001"]
