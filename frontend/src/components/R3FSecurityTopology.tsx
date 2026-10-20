@@ -741,6 +741,45 @@ interface R3FSecurityTopologyProps {
   selectedNodeId?: string | null
 }
 
+// Camera rig that smoothly tracks and frames the active hop in educational mode
+function CameraRig({
+  activeStep,
+  tracerMode,
+  isAutoCamEnabled
+}: {
+  activeStep?: TraceStep
+  tracerMode: string
+  isAutoCamEnabled: boolean
+}) {
+  const targetPos = useRef(new THREE.Vector3(0, 5, 14))
+  const targetLookAt = useRef(new THREE.Vector3(0, 0, 0))
+
+  useFrame((state, delta) => {
+    if (!isAutoCamEnabled) return
+
+    if (tracerMode === 'educational' && activeStep) {
+      const fromNode = NODES_DATA.find((n) => n.id === activeStep.hopFrom)
+      const toNode = NODES_DATA.find((n) => n.id === activeStep.hopTo)
+      if (fromNode && toNode) {
+        const midX = (fromNode.pos[0] + toNode.pos[0]) * 0.5
+        const midY = (fromNode.pos[1] + toNode.pos[1]) * 0.5
+        const midZ = (fromNode.pos[2] + toNode.pos[2]) * 0.5
+
+        targetLookAt.current.set(midX, midY, midZ)
+        targetPos.current.set(midX * 0.45, midY * 0.45 + 3.8, 12.8)
+      }
+    } else {
+      targetLookAt.current.set(0, 0, 0)
+      targetPos.current.set(0, 5, 14)
+    }
+
+    state.camera.position.lerp(targetPos.current, Math.min(delta * 2.2, 0.1))
+    state.camera.lookAt(targetLookAt.current)
+  })
+
+  return null
+}
+
 export const R3FSecurityTopology: React.FC<R3FSecurityTopologyProps> = ({
   onSelectNode,
   selectedNodeId
@@ -760,7 +799,8 @@ export const R3FSecurityTopology: React.FC<R3FSecurityTopologyProps> = ({
   const [isPlayingFlow, setIsPlayingFlow] = useState<boolean>(true)
   const [traceProgress, setTraceProgress] = useState<number>(0)
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0)
-  const [isDetailsExpanded, setIsDetailsExpanded] = useState<boolean>(false)
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState<boolean>(true)
+  const [isAutoCamEnabled, setIsAutoCamEnabled] = useState<boolean>(false)
 
   const activeStep = currentScenario.steps[currentStepIndex] || currentScenario.steps[0]
 
@@ -917,6 +957,13 @@ export const R3FSecurityTopology: React.FC<R3FSecurityTopologyProps> = ({
           )
         })}
 
+        {/* Camera Rig with smooth glide tracking */}
+        <CameraRig
+          activeStep={activeStep}
+          tracerMode={tracerMode}
+          isAutoCamEnabled={isAutoCamEnabled}
+        />
+
         {/* Orbit Controls with Damping */}
         <OrbitControls
           autoRotate={!selectedNodeId && tracerMode === 'autonomous'}
@@ -928,37 +975,39 @@ export const R3FSecurityTopology: React.FC<R3FSecurityTopologyProps> = ({
         />
       </Canvas>
 
-      {/* Slim Top HUD Bar: Mode Pill & Scenario Selector */}
+      {/* Top Controls Bar: Mode Switcher, Scenario Picker, and Playback Toolbar */}
       <div className="absolute top-2.5 left-2.5 right-2.5 flex flex-wrap items-center justify-between gap-2 pointer-events-auto z-10 text-xs font-sans">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Mode Switcher */}
-          <div className="flex items-center bg-slate-900/90 backdrop-blur-md p-1 rounded-lg border border-slate-700/60 shadow-lg">
+          <div className="flex items-center bg-slate-900/95 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-xl">
             <button
               onClick={() => setTracerMode('educational')}
-              className={`px-2.5 py-1 rounded-md font-medium text-[11px] transition-all ${
+              className={`px-3 py-1.5 rounded-lg font-medium text-xs transition-all flex items-center gap-1.5 ${
                 tracerMode === 'educational'
-                  ? 'bg-indigo-600 text-white shadow-sm font-semibold'
+                  ? 'bg-indigo-600 text-white shadow-md font-semibold'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              Sequence Tracer
+              <Zap className="w-3.5 h-3.5 text-amber-300" />
+              <span>Educational Tracer</span>
             </button>
             <button
               onClick={() => setTracerMode('autonomous')}
-              className={`px-2.5 py-1 rounded-md font-medium text-[11px] transition-all ${
+              className={`px-3 py-1.5 rounded-lg font-medium text-xs transition-all flex items-center gap-1.5 ${
                 tracerMode === 'autonomous'
-                  ? 'bg-indigo-600 text-white shadow-sm font-semibold'
+                  ? 'bg-indigo-600 text-white shadow-md font-semibold'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              Live Mesh Flow
+              <Radio className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Live Mesh Flow</span>
             </button>
           </div>
 
           {/* Scenario Selector */}
           {tracerMode === 'educational' && (
-            <div className="hidden sm:flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-700/60 shadow-lg">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Scenario:</span>
+            <div className="flex items-center gap-2 bg-slate-900/95 backdrop-blur-md px-3 py-1 rounded-xl border border-slate-700/80 shadow-xl">
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Attack Lab:</span>
               <select
                 value={selectedScenarioId}
                 onChange={(e) => {
@@ -966,7 +1015,7 @@ export const R3FSecurityTopology: React.FC<R3FSecurityTopologyProps> = ({
                   setCurrentStepIndex(0)
                   setTraceProgress(0)
                 }}
-                className="bg-transparent text-slate-100 font-medium text-xs py-0.5 focus:outline-none cursor-pointer"
+                className="bg-transparent text-white font-medium text-xs py-1 focus:outline-none cursor-pointer"
               >
                 {EDUCATIONAL_SCENARIOS.map((sc) => (
                   <option key={sc.id} value={sc.id} className="bg-slate-900 text-slate-100">
@@ -974,144 +1023,188 @@ export const R3FSecurityTopology: React.FC<R3FSecurityTopologyProps> = ({
                   </option>
                 ))}
               </select>
+              <span className="hidden lg:inline-block text-[10px] px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/30 font-mono font-semibold">
+                {currentScenario.mitreCode}
+              </span>
             </div>
           )}
         </div>
 
-        {/* Stepper Controls */}
+        {/* Stepper Controls & Camera Rig Toggle */}
         {tracerMode === 'educational' && (
-          <div className="flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-1 rounded-lg border border-slate-700/60 shadow-lg">
+          <div className="flex items-center gap-1.5 bg-slate-900/95 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-xl">
             <button
               onClick={handlePrevStep}
               title="Previous Hop"
-              className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
             >
-              <ChevronLeft className="w-3.5 h-3.5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
 
             <button
               onClick={() => setIsPlayingFlow(!isPlayingFlow)}
               title={isPlayingFlow ? 'Pause Flow' : 'Play Flow'}
-              className="px-2 py-0.5 rounded-md bg-slate-800 hover:bg-slate-700 text-white font-medium text-[11px] flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs flex items-center gap-1.5 transition-colors"
             >
-              {isPlayingFlow ? <Pause className="w-3 h-3 text-amber-400" /> : <Play className="w-3 h-3 text-emerald-400" />}
+              {isPlayingFlow ? <Pause className="w-3.5 h-3.5 text-amber-400" /> : <Play className="w-3.5 h-3.5 text-emerald-400" />}
               <span>{isPlayingFlow ? 'Pause' : 'Play'}</span>
             </button>
 
             <button
               onClick={handleNextStep}
               title="Next Hop"
-              className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
             >
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
 
             <button
               onClick={handleResetTrace}
               title="Reset Sequence"
-              className="p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
             >
-              <RotateCcw className="w-3 h-3" />
+              <RotateCcw className="w-3.5 h-3.5" />
             </button>
 
             <button
               onClick={() => setPlaybackSpeed((s) => (s === 1.0 ? 2.0 : s === 2.0 ? 0.5 : 1.0))}
-              className="px-1.5 py-0.5 text-slate-400 hover:text-white font-mono text-[10px]"
+              title="Toggle Playback Speed"
+              className="px-2 py-1 rounded-lg bg-slate-800 text-indigo-300 hover:text-white font-mono text-[11px] font-bold"
             >
               {playbackSpeed}x
+            </button>
+
+            <button
+              onClick={() => setIsAutoCamEnabled(!isAutoCamEnabled)}
+              title="Auto-Focus Camera on active packet hop"
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1 transition-all ${
+                isAutoCamEnabled
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Crosshair className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Cam Follow</span>
             </button>
           </div>
         )}
       </div>
 
-      {/* Slim, Non-Intrusive Bottom HUD Bar (Never blocks central 3D scene) */}
+      {/* Prominent Teacher, Student & Judge Educational Walkthrough Console */}
       {tracerMode === 'educational' && (
         <div className="absolute bottom-2.5 left-2.5 right-2.5 pointer-events-auto z-10 flex flex-col gap-2 font-sans">
           
-          {/* Main Status Strip */}
-          <div className="px-3 py-2 rounded-xl bg-slate-900/95 backdrop-blur-md border border-slate-700/60 shadow-xl text-slate-100 flex items-center justify-between gap-3 text-xs">
-            {/* Left: Step Index & Title */}
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span
-                className="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[10px] flex-shrink-0"
-                style={{
-                  backgroundColor: `${activeStep.packetColor}25`,
-                  color: activeStep.packetColor
-                }}
-              >
-                {activeStep.stepIndex}/{currentScenario.steps.length}
+          {/* Main Status & Hop Selection Bar */}
+          <div className="p-2.5 rounded-xl bg-slate-900/98 backdrop-blur-xl border border-slate-700/80 shadow-2xl text-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+            {/* Hop Selector Pills */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>Attack Flow Hops:</span>
               </span>
-
-              <div className="flex items-center gap-2 truncate">
-                <span className="font-semibold text-white truncate text-xs">{activeStep.title}</span>
-                <span className="hidden sm:inline-block text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                  {activeStep.hopFrom} &rarr; {activeStep.hopTo}
-                </span>
-                <span className="hidden md:inline-block text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-300 font-mono">
-                  {activeStep.protocol}
-                </span>
-              </div>
-            </div>
-
-            {/* Center: Step Timeline Indicators */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              {currentScenario.steps.map((_, idx) => (
+              {currentScenario.steps.map((step, idx) => (
                 <button
                   key={idx}
                   onClick={() => {
                     setCurrentStepIndex(idx)
                     setTraceProgress(0)
                   }}
-                  title={`Jump to Hop ${idx + 1}`}
-                  className={`h-1.5 rounded-full transition-all ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold font-mono transition-all flex items-center gap-1.5 ${
                     idx === currentStepIndex
-                      ? 'w-5 bg-indigo-400'
-                      : idx < currentStepIndex
-                      ? 'w-1.5 bg-indigo-500/60'
-                      : 'w-1.5 bg-slate-700'
+                      ? 'bg-amber-400 text-slate-950 shadow-md ring-2 ring-amber-400/40 font-bold scale-105'
+                      : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white'
                   }`}
-                />
+                >
+                  <span>Hop {idx + 1}</span>
+                  <span className="hidden sm:inline font-sans font-normal opacity-80 text-[11px]">
+                    : {step.title.split(' ')[0]}
+                  </span>
+                </button>
               ))}
             </div>
 
-            {/* Right: Expand Details Flyout Button */}
+            {/* Right: Expand/Collapse Details Toggle */}
             <button
               onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
-              className="px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-[11px] font-medium flex items-center gap-1 transition-colors flex-shrink-0 border border-slate-700/60"
+              className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center gap-1.5 transition-colors shadow-sm ml-auto"
             >
-              <span>{isDetailsExpanded ? 'Close Brief' : 'Step Details'}</span>
-              <Info className="w-3 h-3 text-indigo-400" />
+              <Info className="w-3.5 h-3.5 text-indigo-200" />
+              <span>{isDetailsExpanded ? 'Hide Brief' : 'Educational Brief'}</span>
             </button>
           </div>
 
-          {/* Expanded Drawer (Only opens when user clicks "Step Details") */}
+          {/* Expanded Educational Teardown Drawer */}
           {isDetailsExpanded && (
-            <div className="p-3.5 rounded-xl bg-slate-900/98 backdrop-blur-xl border border-slate-700/70 shadow-2xl space-y-2 text-xs">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div className="p-4 rounded-xl bg-slate-900/98 backdrop-blur-xl border border-slate-700/80 shadow-2xl text-xs space-y-3">
+              {/* Header Strip */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-white text-xs">{activeStep.title}</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
-                    {activeStep.layer}
+                  <span
+                    className="w-6 h-6 rounded-md flex items-center justify-center font-mono font-bold text-xs"
+                    style={{
+                      backgroundColor: `${activeStep.packetColor}30`,
+                      color: activeStep.packetColor
+                    }}
+                  >
+                    {activeStep.stepIndex}
                   </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-mono">
-                    STATUS: {activeStep.verdict}
+                  <span className="font-bold text-white text-sm">{activeStep.title}</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                    {activeStep.hopFrom} &rarr; {activeStep.hopTo}
                   </span>
                 </div>
-                <button
-                  onClick={() => setIsDetailsExpanded(false)}
-                  className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition-colors"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    {activeStep.layer}
+                  </span>
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md border ${
+                    activeStep.verdict === 'CONTAINED' || activeStep.verdict === 'QUARANTINED'
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                  }`}>
+                    VERDICT: {activeStep.verdict}
+                  </span>
+                </div>
               </div>
-              <p className="text-slate-300 text-xs leading-relaxed font-sans">
-                {activeStep.explanation}
-              </p>
-              <div className="text-[11px] font-mono text-slate-400 flex items-center gap-2 pt-1 border-t border-slate-800/80">
-                <span className="text-emerald-400 font-semibold">Hop Path:</span>
-                <span className="text-slate-200">{activeStep.hopFrom} &rarr; {activeStep.hopTo}</span>
-                <span className="text-slate-600">&bull;</span>
-                <span className="text-indigo-400">{activeStep.protocol}</span>
+
+              {/* 3-Column Educational Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {/* Column 1: Network & Protocol Mechanics */}
+                <div className="p-3 bg-slate-800/60 rounded-lg border border-slate-700/60 space-y-1.5">
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-indigo-400 flex items-center gap-1">
+                    <Radio className="w-3 h-3 text-indigo-400" />
+                    <span>Packet & Transport Layer</span>
+                  </div>
+                  <div className="font-mono text-slate-200 text-xs font-semibold">
+                    Protocol: {activeStep.protocol}
+                  </div>
+                  <div className="text-slate-400 text-[11px] font-mono">
+                    Routing: {activeStep.hopFrom} &rarr; {activeStep.hopTo}
+                  </div>
+                </div>
+
+                {/* Column 2: Plain English Explainer */}
+                <div className="p-3 bg-slate-800/60 rounded-lg border border-slate-700/60 space-y-1.5">
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-amber-400 flex items-center gap-1">
+                    <Terminal className="w-3 h-3 text-amber-400" />
+                    <span>Attack Stage Explanation</span>
+                  </div>
+                  <p className="text-slate-200 text-xs leading-relaxed font-sans">
+                    {activeStep.explanation}
+                  </p>
+                </div>
+
+                {/* Column 3: WinReg-HIDS Detection & Defense */}
+                <div className="p-3 bg-slate-800/60 rounded-lg border border-slate-700/60 space-y-1.5">
+                  <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-400 flex items-center gap-1">
+                    <Shield className="w-3 h-3 text-emerald-400" />
+                    <span>WinReg-HIDS Real-Time Defense</span>
+                  </div>
+                  <p className="text-emerald-300 text-xs leading-relaxed font-sans">
+                    {activeStep.telemetryAction}
+                  </p>
+                </div>
               </div>
             </div>
           )}

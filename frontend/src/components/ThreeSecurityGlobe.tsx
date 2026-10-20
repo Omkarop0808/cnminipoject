@@ -16,10 +16,12 @@ import {
   AlertTriangle,
   Lock,
   Globe,
-  Maximize2
+  Maximize2,
+  Layers
 } from 'lucide-react';
 import { fetchPacketStream, simulateAttackScenario, PacketItem } from '../services/api';
 import { R3FSecurityTopology } from './R3FSecurityTopology';
+import { ThreeHardwareDissector } from './ThreeHardwareDissector';
 
 interface GraphNode {
   id: string;
@@ -591,19 +593,31 @@ export const ThreeSecurityGlobe: React.FC<ThreeSecurityGlobeProps> = ({ alerts }
       <div className="p-3.5 border-b border-slate-200 bg-white/95 backdrop-blur-md flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-xs">
-            <Globe className="w-4 h-4 text-indigo-600" />
+            {engineMode === 'r3f' ? (
+              <Globe className="w-4 h-4 text-indigo-600" />
+            ) : (
+              <Layers className="w-4 h-4 text-emerald-600" />
+            )}
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-semibold text-slate-900 text-sm tracking-tight">3D Spatial Network & Threat Topology</span>
-              <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-mono font-medium border border-indigo-200">
-                {engineMode === 'r3f' ? 'React Three Fiber (R3F)' : 'Three.js WebGL Hardware'}
+              <span className="font-semibold text-slate-900 text-sm tracking-tight">
+                {engineMode === 'r3f'
+                  ? '3D Spatial Network & Attack Topology'
+                  : 'Exploded 3D Host Hardware & Kernel Subsystem Dissector'}
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border ${
+                engineMode === 'r3f'
+                  ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              }`}>
+                {engineMode === 'r3f' ? 'View 1: Network & Attack Flow (R3F)' : 'View 2: Host Hardware Dissector (Three.js)'}
               </span>
             </div>
             <div className="text-xs text-slate-500 font-normal mt-0.5">
               {engineMode === 'r3f'
-                ? 'Educational Sequence Tracer & Interactive 3D Packet Raycasting'
-                : 'Native Three.js WebGL Dissector & Hardware Buffer Flow'}
+                ? 'Educational Sequence Tracer & Interactive 3D Packet Raycasting (Perimeter -> Host Registry)'
+                : 'Interactive Multi-Tier Exploded Hardware: NIC Buffer -> NT Kernel Ring 0 -> LSASS -> Registry B-Tree'}
             </div>
           </div>
         </div>
@@ -614,60 +628,64 @@ export const ThreeSecurityGlobe: React.FC<ThreeSecurityGlobeProps> = ({ alerts }
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-xs">
             <button
               onClick={() => setEngineMode('r3f')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                 engineMode === 'r3f'
                   ? 'bg-white text-slate-900 shadow-xs font-semibold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              R3F Spatial Flow
+              <Globe className="w-3.5 h-3.5 text-indigo-600" />
+              <span>View 1: Attack Flow (R3F)</span>
             </button>
             <button
               onClick={() => setEngineMode('threejs')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                 engineMode === 'threejs'
                   ? 'bg-white text-slate-900 shadow-xs font-semibold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Three.js WebGL Dissector
+              <Layers className="w-3.5 h-3.5 text-emerald-600" />
+              <span>View 2: Host Hardware (Three.js)</span>
             </button>
           </div>
 
-          {/* Perspective Presets */}
-          <div className="hidden sm:flex items-center space-x-2">
-            <button
-              onClick={() => setIsRotating(!isRotating)}
-              className={`px-3 py-1.5 rounded-lg border text-xs font-medium flex items-center space-x-1.5 transition-all shadow-xs ${
-                isRotating
-                  ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>{isRotating ? 'Orbit Active' : 'Orbit Paused'}</span>
-            </button>
+          {/* Perspective Presets (Only when in R3F mode) */}
+          {engineMode === 'r3f' && (
+            <div className="hidden sm:flex items-center space-x-2">
+              <button
+                onClick={() => setIsRotating(!isRotating)}
+                className={`px-3 py-1.5 rounded-lg border text-xs font-medium flex items-center space-x-1.5 transition-all shadow-xs ${
+                  isRotating
+                    ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>{isRotating ? 'Orbit Active' : 'Orbit Paused'}</span>
+              </button>
 
-            <button
-              onClick={handleResetCamera}
-              className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 transition-all shadow-xs"
-            >
-              Reset View
-            </button>
-            <button
-              onClick={handleFocusThreatVector}
-              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg text-xs font-medium text-rose-700 transition-all shadow-xs flex items-center space-x-1.5"
-            >
-              <Crosshair className="w-3.5 h-3.5 text-rose-600" />
-              <span>Threat Angle</span>
-            </button>
-          </div>
+              <button
+                onClick={handleResetCamera}
+                className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 transition-all shadow-xs"
+              >
+                Reset View
+              </button>
+              <button
+                onClick={handleFocusThreatVector}
+                className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg text-xs font-medium text-rose-700 transition-all shadow-xs flex items-center space-x-1.5"
+              >
+                <Crosshair className="w-3.5 h-3.5 text-rose-600" />
+                <span>Threat Angle</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Main 3D Viewport Frame */}
       <div ref={containerRef} className="flex-1 relative bg-[#0B0F19] overflow-hidden min-h-[460px]">
-        {/* R3F Engine Container */}
+        {/* View 1: R3F Engine Container */}
         <div className={`w-full h-full ${engineMode === 'r3f' ? 'block' : 'hidden'}`}>
           <R3FSecurityTopology
             onSelectNode={handleSelectNodeById}
@@ -675,55 +693,12 @@ export const ThreeSecurityGlobe: React.FC<ThreeSecurityGlobeProps> = ({ alerts }
           />
         </div>
 
-        {/* Native Three.js WebGL Dissector Canvas Container */}
-        <div className={`w-full h-full ${engineMode === 'threejs' ? 'block' : 'hidden'}`}>
-          <canvas ref={canvasRef} className="w-full h-full block cursor-grab active:cursor-grabbing" />
-        </div>
-
-        {/* Notification Pill */}
-        {simulationStatus && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-full shadow-lg border border-indigo-400 flex items-center space-x-2 animate-bounce z-20">
-            <Radio className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
-            <span>{simulationStatus}</span>
+        {/* View 2: Native Three.js WebGL Exploded Dissector Container */}
+        {engineMode === 'threejs' && (
+          <div className="w-full h-full block">
+            <ThreeHardwareDissector />
           </div>
         )}
-
-        {/* Bottom Left Telemetry HUD */}
-        <div className="absolute bottom-3 left-3 p-3 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-xl space-y-1 text-xs shadow-xl z-20 font-sans">
-          <div className="text-emerald-400 font-semibold uppercase tracking-wider text-[10px] flex items-center space-x-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Live 3D WebGL Telemetry HUD</span>
-          </div>
-          <div className="text-slate-300 text-[11px]">Active Packets: <span className="text-white font-semibold font-mono">{activePacketsCount} In Flight</span></div>
-          <div className="text-slate-300 text-[11px]">Framerate: <span className="text-emerald-400 font-semibold font-mono">{liveStreamRate} (VSync)</span></div>
-          <div className="text-slate-300 text-[11px]">Topology: <span className="text-indigo-300 font-semibold font-mono">10 Nodes &bull; 11 Network Arcs</span></div>
-          <div className="text-slate-400 pt-1 text-[10px]">Click any node or traveling packet to inspect</div>
-        </div>
-
-        {/* Bottom Right Attack Injector Bar */}
-        <div className="absolute bottom-3 right-3 p-2 bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-xl flex items-center space-x-2 shadow-xl z-20">
-          <button
-            onClick={() => triggerScenario('PHISHING')}
-            className="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-all shadow-xs"
-          >
-            <Zap className="w-3.5 h-3.5 text-rose-400" />
-            <span>Inject Phishing Stream</span>
-          </button>
-          <button
-            onClick={() => triggerScenario('RANSOMWARE')}
-            className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-all shadow-xs"
-          >
-            <Flame className="w-3.5 h-3.5 text-amber-400" />
-            <span>Trigger Ransomware Burst</span>
-          </button>
-          <button
-            onClick={() => triggerScenario('CIA_TAMPER')}
-            className="px-3 py-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-all shadow-xs"
-          >
-            <Lock className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Simulate CIA Tamper</span>
-          </button>
-        </div>
 
         {/* ======================= NODE INSPECTOR DIALOG ======================= */}
         {selectedNode && (
