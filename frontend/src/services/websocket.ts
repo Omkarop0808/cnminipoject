@@ -2,11 +2,18 @@ type MessageHandler = (data: any) => void;
 
 class WebSocketClient {
   private ws: WebSocket | null = null;
-  private url: string = 'ws://127.0.0.1:8000/ws/telemetry';
   private handlers: Set<MessageHandler> = new Set();
   private reconnectInterval: number = 3000;
   private isConnecting: boolean = false;
   private pingTimer: any = null;
+
+  private getUrl(): string {
+    if (typeof window !== 'undefined' && window.location) {
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      return `${proto}//${window.location.host}/ws/telemetry`;
+    }
+    return 'ws://127.0.0.1:8000/ws/telemetry';
+  }
 
   constructor() {
     this.connect();
@@ -17,7 +24,7 @@ class WebSocketClient {
     this.isConnecting = true;
 
     try {
-      this.ws = new WebSocket(this.url);
+      this.ws = new WebSocket(this.getUrl());
 
       this.ws.onopen = () => {
         this.isConnecting = false;

@@ -47,32 +47,32 @@ export const ForensicDrawer: React.FC<ForensicDrawerProps> = ({
   };
 
   return (
-    <div className="w-full lg:w-[460px] h-full bg-surface-panel border-l border-border-dim flex flex-col overflow-hidden text-xs">
+    <div className="w-full h-full bg-white flex flex-col overflow-hidden text-xs text-slate-800">
       
       {/* Drawer Header */}
-      <div className="p-3.5 border-b border-border-dim flex items-center justify-between bg-surface-subtle/50">
+      <div className="p-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50/90">
         <div className="flex items-center space-x-2">
-          <ShieldAlert className="w-4 h-4 text-red-400" />
-          <span className="font-semibold text-white tracking-wide">Forensic Evidence Package</span>
+          <ShieldAlert className="w-4 h-4 text-rose-600" />
+          <span className="font-semibold text-slate-900 tracking-tight">Forensic Evidence Package</span>
         </div>
         <div className="flex items-center space-x-1">
           <button
             onClick={handleCopyJSON}
             title="Copy JSON Evidence"
-            className="p-1.5 text-slate-400 hover:text-white rounded hover:bg-surface-subtle"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded hover:bg-slate-200/60 transition-colors"
           >
             <Copy className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleDownloadJSON}
             title="Download JSON Report"
-            className="p-1.5 text-slate-400 hover:text-white rounded hover:bg-surface-subtle"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded hover:bg-slate-200/60 transition-colors"
           >
             <Download className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded hover:bg-surface-subtle"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded hover:bg-slate-200/60 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -80,37 +80,45 @@ export const ForensicDrawer: React.FC<ForensicDrawerProps> = ({
       </div>
 
       {/* Drawer Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         
         {/* Alert Overview Banner */}
-        <div className="bg-surface-bg p-3 rounded border border-border-dim space-y-1.5">
+        <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-1.5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] text-slate-400">{alert.rule_id}</span>
-            <span className="px-2 py-0.5 text-[10px] font-bold font-mono rounded bg-red-500/15 text-red-400 border border-red-500/30">
+            <span className="font-mono text-[10px] text-slate-500">{alert.rule_id}</span>
+            <span
+              className={`px-2 py-0.5 text-[10px] font-bold font-mono rounded-full border ${
+                alert.severity === 'CRITICAL'
+                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                  : alert.severity === 'HIGH'
+                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                  : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+              }`}
+            >
               {alert.severity}
             </span>
           </div>
-          <h3 className="text-sm font-semibold text-white">{alert.rule_name}</h3>
+          <h3 className="text-sm font-semibold text-slate-900">{alert.rule_name}</h3>
           {alert.mitre_attack && (
-            <div className="text-[11px] font-mono text-blue-400">
+            <div className="text-[11px] font-mono text-indigo-600 font-medium">
               MITRE ATT&CK: {alert.mitre_attack}
             </div>
           )}
-          <p className="text-[11px] text-slate-400 leading-relaxed pt-1">
+          <p className="text-[11px] text-slate-600 leading-relaxed pt-1">
             {alert.rationale}
           </p>
         </div>
 
         {/* Triage Status Management */}
-        <div className="bg-surface-bg p-3 rounded border border-border-dim space-y-2.5">
-          <div className="font-mono text-[11px] text-slate-400 uppercase tracking-wider">
+        <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2.5 shadow-xs">
+          <div className="font-mono text-[11px] text-slate-500 uppercase tracking-wider font-semibold">
             Analyst Triage & Actions
           </div>
           <div className="flex items-center space-x-2">
             <select
               value={currentStatus}
               onChange={(e) => setCurrentStatus(e.target.value)}
-              className="flex-1 bg-surface-subtle border border-border-dim rounded px-2.5 py-1.5 text-white focus:outline-none focus:border-border-focus font-mono text-xs"
+              className="flex-1 bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-mono text-xs shadow-xs"
             >
               <option value="NEW">NEW</option>
               <option value="INVESTIGATING">INVESTIGATING</option>
@@ -120,7 +128,7 @@ export const ForensicDrawer: React.FC<ForensicDrawerProps> = ({
             <button
               onClick={handleSaveStatus}
               disabled={isSaving}
-              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium flex items-center space-x-1.5 transition-colors"
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-medium flex items-center space-x-1.5 transition-colors shadow-xs"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{isSaving ? 'Saving...' : 'Update'}</span>
@@ -131,42 +139,42 @@ export const ForensicDrawer: React.FC<ForensicDrawerProps> = ({
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Analyst notes, IOC indicators, or remediation steps taken..."
             rows={2}
-            className="w-full bg-surface-subtle border border-border-dim rounded p-2 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-border-focus"
+            className="w-full bg-white border border-slate-300 rounded-md p-2 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-xs"
           />
         </div>
 
         {/* Target Registry Path & Value Diff */}
         <div className="space-y-1.5">
-          <div className="font-mono text-[11px] text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
-            <FileCode className="w-3.5 h-3.5" />
+          <div className="font-mono text-[11px] text-slate-500 uppercase tracking-wider flex items-center space-x-1.5 font-semibold">
+            <FileCode className="w-3.5 h-3.5 text-slate-600" />
             <span>Registry Mutation Delta</span>
           </div>
-          <div className="bg-surface-bg p-3 rounded border border-border-dim space-y-2 font-mono text-[11px]">
+          <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2 font-mono text-[11px] shadow-xs">
             <div>
               <span className="text-slate-500 block text-[10px]">TARGET PATH:</span>
-              <span className="text-slate-200 select-all break-all">
+              <div className="bg-slate-950 text-emerald-400 p-2 rounded border border-slate-800 select-all break-all mt-1">
                 {alert.hive}\{alert.key_path}
-              </span>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-[10px]">
+            <div className="grid grid-cols-2 gap-2 text-[10px] pt-1">
               <div>
                 <span className="text-slate-500 block">VALUE NAME:</span>
-                <span className="text-slate-300 font-bold">{alert.value_name || '(Default)'}</span>
+                <span className="text-slate-800 font-bold">{alert.value_name || '(Default)'}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">TYPE:</span>
-                <span className="text-slate-300">{alert.value_type || 'N/A'}</span>
+                <span className="text-slate-700">{alert.value_type || 'N/A'}</span>
               </div>
             </div>
 
             {/* Before vs After Payload Diff */}
-            <div className="pt-2 border-t border-border-dim space-y-1.5">
+            <div className="pt-2 border-t border-slate-200 space-y-1.5">
               <span className="text-slate-500 block text-[10px]">PAYLOAD DELTA:</span>
-              <div className="bg-surface-panel p-2 rounded border border-border-dim space-y-1">
-                <div className="text-red-400 line-through break-all select-all">
+              <div className="bg-white p-2.5 rounded-md border border-slate-200 space-y-1 text-[11px]">
+                <div className="text-rose-600 line-through break-all select-all">
                   (-) {alert.previous_data || '<None (Created)>'}
                 </div>
-                <div className="text-emerald-400 font-semibold break-all select-all">
+                <div className="text-emerald-700 font-semibold break-all select-all">
                   (+) {alert.new_data || '<None (Deleted)>'}
                 </div>
               </div>
@@ -176,32 +184,32 @@ export const ForensicDrawer: React.FC<ForensicDrawerProps> = ({
 
         {/* Attributed Process Lineage */}
         <div className="space-y-1.5">
-          <div className="font-mono text-[11px] text-slate-400 uppercase tracking-wider flex items-center justify-between">
+          <div className="font-mono text-[11px] text-slate-500 uppercase tracking-wider flex items-center justify-between font-semibold">
             <div className="flex items-center space-x-1.5">
-              <Cpu className="w-3.5 h-3.5" />
+              <Cpu className="w-3.5 h-3.5 text-slate-600" />
               <span>Process Attribution Telemetry</span>
             </div>
             <span
-              className={`text-[9px] px-1.5 py-0.5 rounded border font-mono ${
+              className={`text-[9px] px-1.5 py-0.5 rounded-full border font-mono font-medium ${
                 alert.attribution_confidence === 'CONFIRMED'
-                  ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                   : alert.attribution_confidence === 'INFERRED'
-                  ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
-                  : 'bg-slate-500/15 text-slate-400 border-slate-500/30'
+                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                  : 'bg-slate-100 text-slate-600 border-slate-200'
               }`}
             >
               {alert.attribution_confidence || (alert.process_image_path ? 'INFERRED' : 'UNATTRIBUTED')}
             </span>
           </div>
-          <div className="bg-surface-bg p-3 rounded border border-border-dim space-y-2 font-mono text-[11px]">
-            <div className="grid grid-cols-2 gap-2 text-[10px] pb-1 border-b border-border-dim">
+          <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2 font-mono text-[11px] shadow-xs">
+            <div className="grid grid-cols-2 gap-2 text-[10px] pb-1 border-b border-slate-200">
               <div>
                 <span className="text-slate-500 block">SOURCE / EVENT ID:</span>
-                <span className="text-blue-400 font-bold">{alert.source?.toUpperCase() || 'WIN32'} / {alert.source_event_id || 'N/A'}</span>
+                <span className="text-indigo-600 font-bold">{alert.source?.toUpperCase() || 'WIN32'} / {alert.source_event_id || 'N/A'}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">PROCESS GUID:</span>
-                <span className="text-slate-300 break-all">{alert.process_guid || 'N/A (Win32)'}</span>
+                <span className="text-slate-700 break-all">{alert.process_guid || 'N/A (Win32)'}</span>
               </div>
             </div>
 
@@ -209,30 +217,30 @@ export const ForensicDrawer: React.FC<ForensicDrawerProps> = ({
               <>
                 <div>
                   <span className="text-slate-500 block text-[10px]">EXECUTABLE IMAGE:</span>
-                  <span className="text-slate-200 font-semibold select-all break-all">
+                  <span className="text-slate-900 font-semibold select-all break-all">
                     {alert.process_image_path}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[10px]">
                   <div>
                     <span className="text-slate-500 block">PROCESS ID:</span>
-                    <span className="text-slate-300 font-bold">{alert.process_pid}</span>
+                    <span className="text-slate-800 font-bold">{alert.process_pid}</span>
                   </div>
                   <div>
                     <span className="text-slate-500 block">ACCOUNT:</span>
-                    <span className="text-slate-300">{alert.process_user || 'SYSTEM'}</span>
+                    <span className="text-slate-700">{alert.process_user || 'SYSTEM'}</span>
                   </div>
                 </div>
                 <div>
                   <span className="text-slate-500 block text-[10px]">COMMAND LINE:</span>
-                  <div className="bg-surface-panel p-1.5 rounded border border-border-dim text-slate-300 select-all break-all text-[10px]">
+                  <div className="bg-slate-950 text-slate-200 p-2 rounded border border-slate-800 select-all break-all text-[10px] mt-1">
                     {alert.process_command_line || 'N/A'}
                   </div>
                 </div>
                 {alert.parent_image_path && (
-                  <div className="pt-1.5 border-t border-border-dim text-[10px]">
+                  <div className="pt-1.5 border-t border-slate-200 text-[10px]">
                     <span className="text-slate-500 block">PARENT PROCESS:</span>
-                    <span className="text-slate-400 break-all">
+                    <span className="text-slate-600 break-all">
                       {alert.parent_image_path} (PID: {alert.parent_pid})
                     </span>
                   </div>
@@ -248,22 +256,22 @@ export const ForensicDrawer: React.FC<ForensicDrawerProps> = ({
 
         {/* Rule Matched Condition Proofs */}
         <div className="space-y-1.5">
-          <div className="font-mono text-[11px] text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="font-mono text-[11px] text-slate-500 uppercase tracking-wider flex items-center space-x-1.5 font-semibold">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             <span>Rule Evaluation Match Proof</span>
           </div>
-          <div className="bg-surface-bg p-3 rounded border border-border-dim space-y-2 font-mono text-[10px]">
+          <div className="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2 font-mono text-[10px] shadow-xs">
             {Array.isArray(alert.matched_conditions) && alert.matched_conditions.length > 0 ? (
               alert.matched_conditions.map((proof: any, idx: number) => (
-                <div key={idx} className="p-2 bg-surface-panel rounded border border-border-dim space-y-1">
+                <div key={idx} className="p-2 bg-white rounded border border-slate-200 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-blue-400 font-bold">{proof.field}</span>
+                    <span className="text-indigo-600 font-bold">{proof.field}</span>
                     <span className="text-slate-500">{proof.operator}</span>
                   </div>
-                  <div className="text-slate-400 break-all">
-                    Expected: <span className="text-slate-300">{JSON.stringify(proof.expected)}</span>
+                  <div className="text-slate-600 break-all">
+                    Expected: <span className="text-slate-800 font-medium">{JSON.stringify(proof.expected)}</span>
                   </div>
-                  <div className="text-emerald-400 break-all">
+                  <div className="text-emerald-700 font-semibold break-all">
                     Actual: {proof.actual}
                   </div>
                 </div>

@@ -1,48 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, sans-serif;
-  background-color: #0A0E14;
-  color: #F1F5F9;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #F1F5F9;
+  color: #0F172A;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* Precision Scrollbars */
+/* Custom Refined Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0A0E14;
+  background: #E2E8F0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1E2C3D;
-  border-radius: 3px;
+  background: #94A3B8;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2D425C;
+  background: #64748B;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+/* Neobrutalist & Maximalist High-Contrast Technical Cards */
+.neo-card, .glass-card {
+  background: #FFFFFF;
+  border: 2px solid #0F172A;
+  box-shadow: 4px 4px 0px #0F172A;
+  border-radius: 14px;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neo-card:hover, .glass-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px #0F172A;
+}
+
+.neo-card-sm {
+  background: #FFFFFF;
+  border: 2px solid #0F172A;
+  box-shadow: 3px 3px 0px #0F172A;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+}
+
+.neo-card-sm:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #0F172A;
+}
+
+.neo-btn {
+  border: 2px solid #0F172A;
+  box-shadow: 2.5px 2.5px 0px #0F172A;
+  border-radius: 8px;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.neo-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3.5px 3.5px 0px #0F172A;
+}
+
+.neo-btn:active {
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 0.5px 0.5px 0px #0F172A;
+}
+
+.neo-badge {
+  border: 1.5px solid #0F172A;
+  box-shadow: 1.5px 1.5px 0px #0F172A;
+  font-weight: 700;
+}
+
+.glass-panel {
+  background: #FFFFFF;
+  border: 2px solid #0F172A;
+  box-shadow: 3px 3px 0px #0F172A;
+  border-radius: 12px;
+}
+
+.glass-bento {
+  background: #FFFFFF;
+  border: 2px solid #0F172A;
+  box-shadow: 4px 4px 0px #0F172A;
+  border-radius: 14px;
+}
+
+/* Modern Technical Neobrutalist Grid Canvas */
+.bg-saas-grid {
+  background-color: #F8FAFC;
+  background-image: 
+    linear-gradient(to right, rgba(15, 23, 42, 0.08) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.08) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.bg-dot-matrix {
+  background-image: radial-gradient(rgba(100, 116, 139, 0.25) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.bg-radial-ambient {
+  background: radial-gradient(120% 120% at 50% 0%, #FFFFFF 0%, #F8FAFC 80%);
 }
 
 /* Pulse animation for active real-time status */
 @keyframes pulse-live {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
     opacity: 0.4;
+    transform: scale(0.92);
   }
 }
 
 .animate-pulse-live {
   animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+

@@ -23,6 +23,7 @@ from .dependencies import (
 from .routes_alerts import router as alerts_router
 from .routes_events import router as events_router
 from .routes_rules import router as rules_router
+from .routes_security import router as security_router
 from .routes_system import router as system_router
 
 # Global Watcher instances
@@ -119,6 +120,7 @@ def create_app() -> FastAPI:
     app.include_router(alerts_router, prefix="/api/v1")
     app.include_router(events_router, prefix="/api/v1")
     app.include_router(rules_router, prefix="/api/v1")
+    app.include_router(security_router, prefix="/api/v1")
     app.include_router(system_router, prefix="/api/v1")
 
     # WebSocket Telemetry Endpoint

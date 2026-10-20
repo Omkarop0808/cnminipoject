@@ -28,41 +28,41 @@ export const AlertFeed: React.FC<AlertFeedProps> = ({
   const getSeverityBadge = (severity: string) => {
     switch (severity.toUpperCase()) {
       case 'CRITICAL':
-        return 'bg-red-500/15 text-red-400 border-red-500/30';
+        return 'bg-rose-100 text-rose-950 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
       case 'HIGH':
-        return 'bg-orange-500/15 text-orange-400 border-orange-500/30';
+        return 'bg-amber-100 text-amber-950 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
       case 'MEDIUM':
-        return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+        return 'bg-indigo-100 text-indigo-950 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
       case 'LOW':
-        return 'bg-blue-500/15 text-blue-400 border-blue-500/30';
+        return 'bg-sky-100 text-sky-950 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
       default:
-        return 'bg-slate-500/15 text-slate-400 border-slate-500/30';
+        return 'bg-slate-200 text-slate-900 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status.toUpperCase()) {
       case 'NEW':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+        return 'bg-indigo-100 text-indigo-950 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
       case 'INVESTIGATING':
-        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+        return 'bg-amber-100 text-amber-950 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
       case 'RESOLVED':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        return 'bg-emerald-100 text-emerald-950 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
       case 'FALSE_POSITIVE':
-        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+        return 'bg-slate-200 text-slate-800 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
       default:
-        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+        return 'bg-slate-200 text-slate-800 border border-slate-900 shadow-[1px_1px_0px_#0F172A] font-bold';
     }
   };
 
   const getAttributionBadge = (conf?: string) => {
     switch (conf) {
       case 'CONFIRMED':
-        return 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+        return 'bg-emerald-100 text-emerald-950 border border-slate-900 font-bold';
       case 'INFERRED':
-        return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+        return 'bg-amber-100 text-amber-950 border border-slate-900 font-bold';
       default:
-        return 'bg-slate-500/15 text-slate-400 border-slate-500/30';
+        return 'bg-slate-200 text-slate-800 border border-slate-900 font-bold';
     }
   };
 
@@ -75,37 +75,35 @@ export const AlertFeed: React.FC<AlertFeedProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-surface-panel border border-border-dim rounded-lg overflow-hidden">
+    <div className="flex flex-col h-full bg-white border-2 border-slate-900 rounded-2xl overflow-hidden shadow-[4px_4px_0px_#0F172A]">
       
       {/* Severity KPI Summary Cards */}
-      <div className="p-3 bg-surface-bg border-b border-border-dim grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+      <div className="p-3.5 bg-slate-100 border-b-2 border-slate-900 grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
         {[
-          { label: 'CRITICAL', count: counts.critical, color: 'text-red-400 border-red-500/30 bg-red-500/10' },
-          { label: 'HIGH', count: counts.high, color: 'text-orange-400 border-orange-500/30 bg-orange-500/10' },
-          { label: 'MEDIUM', count: counts.medium, color: 'text-amber-400 border-amber-500/30 bg-amber-500/10' },
-          { label: 'LOW', count: counts.low, color: 'text-blue-400 border-blue-500/30 bg-blue-500/10' },
-          { label: 'ALL ALERTS', count: counts.total, color: 'text-slate-300 border-border-dim bg-surface-panel' }
+          { label: 'CRITICAL', count: counts.critical, bg: 'bg-rose-100 hover:bg-rose-200 text-rose-950 border-2 border-slate-900', countColor: 'text-rose-950', active: 'ring-3 ring-rose-600' },
+          { label: 'HIGH', count: counts.high, bg: 'bg-amber-100 hover:bg-amber-200 text-amber-950 border-2 border-slate-900', countColor: 'text-amber-950', active: 'ring-3 ring-amber-600' },
+          { label: 'MEDIUM', count: counts.medium, bg: 'bg-indigo-100 hover:bg-indigo-200 text-indigo-950 border-2 border-slate-900', countColor: 'text-indigo-950', active: 'ring-3 ring-indigo-600' },
+          { label: 'LOW', count: counts.low, bg: 'bg-sky-100 hover:bg-sky-200 text-sky-950 border-2 border-slate-900', countColor: 'text-sky-950', active: 'ring-3 ring-sky-600' },
+          { label: 'ALL ALERTS', count: counts.total, bg: 'bg-slate-900 hover:bg-slate-800 text-white border-2 border-slate-900', countColor: 'text-white', active: 'ring-3 ring-slate-400' }
         ].map((item) => {
           const isFilterActive = item.label === 'ALL ALERTS' ? severityFilter === '' : severityFilter === item.label;
           return (
             <button
               key={item.label}
               onClick={() => setSeverityFilter(item.label === 'ALL ALERTS' || severityFilter === item.label ? '' : item.label)}
-              className={`p-2 rounded border transition-all text-left flex items-center justify-between ${item.color} ${
-                isFilterActive ? 'ring-1 ring-white/30 shadow-sm' : 'opacity-80 hover:opacity-100'
+              className={`p-3 rounded-xl transition-all text-left flex flex-col justify-between shadow-[3px_3px_0px_#0F172A] hover:shadow-[4px_4px_0px_#0F172A] active:translate-x-0.5 active:translate-y-0.5 ${item.bg} ${
+                isFilterActive ? item.active : ''
               }`}
             >
-              <div>
-                <div className="text-[10px] font-mono opacity-80">{item.label}</div>
-                <div className="text-base font-bold font-mono">{item.count}</div>
-              </div>
+              <div className="text-[10px] font-bold uppercase tracking-wider font-sans">{item.label}</div>
+              <div className={`text-2xl font-black font-mono tracking-tight mt-1 ${item.countColor}`}>{item.count}</div>
             </button>
           );
         })}
       </div>
 
       {/* Search & Filter Header Bar */}
-      <div className="p-3 border-b border-border-dim bg-surface-panel/50 flex flex-wrap items-center justify-between gap-2.5">
+      <div className="p-3 border-b-2 border-slate-900 bg-white flex flex-wrap items-center justify-between gap-2.5">
         
         {/* Search Bar */}
         <div className="relative flex-1 min-w-[240px]">
@@ -115,7 +113,7 @@ export const AlertFeed: React.FC<AlertFeedProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search key path, binary, rule ID, or command line..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-surface-bg border border-border-dim rounded text-white placeholder-slate-500 focus:outline-none focus:border-border-focus font-mono"
+            className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border-2 border-slate-900 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white font-mono shadow-[2px_2px_0px_#0F172A]"
           />
         </div>
 
@@ -124,7 +122,7 @@ export const AlertFeed: React.FC<AlertFeedProps> = ({
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="text-xs bg-surface-bg border border-border-dim rounded px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-border-focus"
+            className="text-xs bg-slate-50 border-2 border-slate-900 rounded-xl px-2.5 py-1.5 text-slate-900 font-bold focus:outline-none font-sans shadow-[2px_2px_0px_#0F172A]"
           >
             <option value="">All Severities</option>
             <option value="CRITICAL">Critical</option>
@@ -136,7 +134,7 @@ export const AlertFeed: React.FC<AlertFeedProps> = ({
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs bg-surface-bg border border-border-dim rounded px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-border-focus"
+            className="text-xs bg-slate-50 border-2 border-slate-900 rounded-xl px-2.5 py-1.5 text-slate-900 font-bold focus:outline-none font-sans shadow-[2px_2px_0px_#0F172A]"
           >
             <option value="">All Statuses</option>
             <option value="NEW">New</option>
@@ -149,85 +147,89 @@ export const AlertFeed: React.FC<AlertFeedProps> = ({
       </div>
 
       {/* Alert Feed Table */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
         {alerts.length === 0 ? (
           <div className="p-12 text-center">
-            <CheckCircle className="w-10 h-10 text-emerald-500/50 mx-auto mb-3" />
-            <h4 className="text-sm font-medium text-slate-300">No Security Alerts Detected</h4>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            <CheckCircle className="w-10 h-10 text-emerald-600 mx-auto mb-3" />
+            <h4 className="text-sm font-bold text-slate-900">No Security Alerts Detected</h4>
+            <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto font-medium">
               All monitored Windows Registry locations match expected configuration. Use the Simulation Lab to execute test mutations.
             </p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-border-dim bg-surface-subtle/50 text-[11px] font-mono text-slate-400">
-                <th className="py-2 px-3 w-20">SEVERITY</th>
-                <th className="py-2 px-3 w-28">TIMESTAMP</th>
-                <th className="py-2 px-3">RULE & TECHNIQUE</th>
-                <th className="py-2 px-3">TARGET REGISTRY KEY</th>
-                <th className="py-2 px-3 w-40">ATTRIBUTED PROCESS</th>
-                <th className="py-2 px-3 w-24">STATUS</th>
-                <th className="py-2 px-2 w-8"></th>
+              <tr className="border-b-2 border-slate-900 bg-slate-100 text-[11px] font-sans font-extrabold text-slate-900 uppercase tracking-wider">
+                <th className="py-3 px-3.5 w-24">SEVERITY</th>
+                <th className="py-3 px-3.5 w-28">TIMESTAMP</th>
+                <th className="py-3 px-3.5">RULE & TECHNIQUE</th>
+                <th className="py-3 px-3.5">TARGET REGISTRY KEY</th>
+                <th className="py-3 px-3.5 w-48">ATTRIBUTED PROCESS</th>
+                <th className="py-3 px-3.5 w-28">STATUS</th>
+                <th className="py-3 px-2 w-8"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-dim">
+            <tbody className="divide-y divide-slate-200">
               {alerts.map((alert) => {
                 const isSelected = selectedAlertId === alert.alert_id;
                 const timeStr = alert.created_at ? new Date(alert.created_at).toLocaleTimeString() : '--:--:--';
+                const isHklm = alert.hive === 'HKLM';
                 return (
                   <tr
                     key={alert.alert_id}
                     onClick={() => onSelectAlert(alert)}
                     className={`cursor-pointer transition-colors ${
                       isSelected
-                        ? 'bg-blue-600/10 border-l-2 border-l-blue-500'
-                        : 'hover:bg-surface-subtle/70'
+                        ? 'bg-indigo-50 border-l-4 border-l-indigo-600'
+                        : 'hover:bg-slate-50'
                     }`}
                   >
                     {/* Severity */}
-                    <td className="py-2.5 px-3 whitespace-nowrap">
-                      <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded border ${getSeverityBadge(alert.severity)}`}>
+                    <td className="py-3 px-3.5 whitespace-nowrap">
+                      <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border shadow-2xs ${getSeverityBadge(alert.severity)}`}>
                         {alert.severity}
                       </span>
                     </td>
 
                     {/* Time */}
-                    <td className="py-2.5 px-3 font-mono text-slate-400 whitespace-nowrap">
+                    <td className="py-3 px-3.5 font-mono text-slate-600 whitespace-nowrap text-[11px]">
                       {timeStr}
                     </td>
 
                     {/* Rule & MITRE */}
-                    <td className="py-2.5 px-3">
-                      <div className="font-medium text-slate-200 line-clamp-1">{alert.rule_name}</div>
+                    <td className="py-3 px-3.5">
+                      <div className="font-semibold text-slate-900 line-clamp-1">{alert.rule_name}</div>
                       {alert.mitre_attack && (
-                        <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                        <div className="text-[10px] font-mono text-indigo-700 mt-0.5 font-medium inline-block px-1.5 py-0.2 rounded bg-indigo-50 border border-indigo-200">
                           {alert.mitre_attack}
                         </div>
                       )}
                     </td>
 
                     {/* Target Registry Key */}
-                    <td className="py-2.5 px-3">
-                      <div className="font-mono text-slate-300 line-clamp-1 text-[11px]">
-                        {alert.hive}\{alert.key_path}
+                    <td className="py-3 px-3.5">
+                      <div className="flex items-center gap-1.5 font-mono text-slate-800 line-clamp-1 text-[11px]">
+                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border ${isHklm ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-sky-100 text-sky-800 border-sky-300'}`}>
+                          {alert.hive}
+                        </span>
+                        <span className="truncate">{alert.key_path}</span>
                       </div>
                       {alert.value_name && (
-                        <div className="font-mono text-slate-500 text-[10px] line-clamp-1">
-                          Value: {alert.value_name}
+                        <div className="font-mono text-slate-500 text-[10px] line-clamp-1 mt-0.5">
+                          Value: <span className="text-slate-700 font-medium">{alert.value_name}</span>
                         </div>
                       )}
                     </td>
 
                     {/* Process Attribution */}
-                    <td className="py-2.5 px-3 font-mono text-[11px] whitespace-nowrap">
+                    <td className="py-2.5 px-3.5 font-mono text-[11px] whitespace-nowrap">
                       <div className="flex items-center space-x-1.5">
-                        <span className={`text-[9px] font-mono px-1 py-0.2 rounded border ${getAttributionBadge(alert.attribution_confidence)}`}>
+                        <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded-full border font-medium ${getAttributionBadge(alert.attribution_confidence)}`}>
                           {alert.attribution_confidence || (alert.process_image_path ? 'INFERRED' : 'UNATTRIBUTED')}
                         </span>
                         {alert.process_image_path ? (
                           <div>
-                            <span className="text-slate-300 font-medium">
+                            <span className="text-slate-800 font-medium">
                               {alert.process_image_path.split('\\').pop()}
                             </span>
                             <span className="text-slate-500 text-[10px] ml-1">
@@ -235,20 +237,20 @@ export const AlertFeed: React.FC<AlertFeedProps> = ({
                             </span>
                           </div>
                         ) : (
-                          <span className="text-slate-500 italic text-[10px]">Unattributed</span>
+                          <span className="text-slate-400 italic text-[10px]">Unattributed</span>
                         )}
                       </div>
                     </td>
 
                     {/* Status */}
-                    <td className="py-2.5 px-3 whitespace-nowrap">
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${getStatusBadge(alert.status)}`}>
+                    <td className="py-2.5 px-3.5 whitespace-nowrap">
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border font-medium ${getStatusBadge(alert.status)}`}>
                         {alert.status}
                       </span>
                     </td>
 
                     {/* Caret */}
-                    <td className="py-2.5 px-2 text-slate-500">
+                    <td className="py-2.5 px-2 text-slate-400">
                       <ChevronRight className="w-3.5 h-3.5" />
                     </td>
                   </tr>
